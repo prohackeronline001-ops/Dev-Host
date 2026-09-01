@@ -1,13 +1,14 @@
 {
   "name": "v-host",
   "version": "1.0.0",
-  "description": "Complete hosting platform - Frontend + Backend",
+  "description": "Complete hosting platform - Frontend + Backend with GitHub Storage",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
   "dependencies": {
+    "axios": "^1.6.2",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
@@ -16,8 +17,6 @@
     "fs-extra": "^11.1.1",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1"
-     "axios": "^1.6.2",
-    "simple-git": "^3.22.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
