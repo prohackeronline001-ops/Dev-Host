@@ -327,23 +327,58 @@ app.get('/api/download-version', verifyToken, async (req, res) => {
     }
 });
 
-// প্রজেক্ট ভিউ
+// ============ প্রজেক্ট ভিউ রাউট ============
 app.get('/:username/:projectName', (req, res) => {
     const { username, projectName } = req.params;
-    const indexPath = path.join(PROJECTS_DIR, username, projectName, 'index.html');
+    
+    // প্যারামিটার ভ্যালিডেশন
+    if (!username || !projectName) {
+        return res.status(400).send('Invalid project path');
+    }
+    
+    // নিরাপত্তা: শুধু আলফানিউমেরিক ক্যারেক্টার অনুমোদন
+    const safeUsername = username.replace(/[^a-zA-Z0-9_-]/g, '');
+    const safeProjectName = projectName.replace(/[^a-zA-Z0-9_-]/g, '');
+    
+    if (safeUsername !== username || safeProjectName !== projectName) {
+        return res.status(400).send('Invalid characters in path');
+    }
+    
+    const indexPath = path.join(PROJECTS_DIR, safeUsername, safeProjectName, 'index.html');
+    
     if (fs.existsSync(indexPath)) {
         res.sendFile(indexPath);
     } else {
-        res.status(404).send('Project not found');
+        res.status(404).send(`
+            <!DOCTYPE html>
+            <html>
+            <head><title>404 - Project Not Found</title></head>
+            <body style="font-family: Arial; text-align: center; padding: 50px;">
+                <h1>📁 Project Not Found</h1>
+                <p>The project "<strong>${safeProjectName}</strong>" for user "<strong>${safeUsername}</strong>" does not exist.</p>
+                <p><a href="/" style="color: #3b82f6; text-decoration: none;">← Go to Home</a></p>
+            </body>
+            </html>
+        `);
     }
 });
 
-// SPA রাউট - সব অজানা রিকুয়েস্ট index.html পাঠান
+// ============ SPA রাউট (সব অজানা রিকুয়েস্ট index.html পাঠান) ============
 app.get('*', (req, res) => {
-    // API রিকুয়েস্ট চেক করুন
-    if (req.path.startsWith('/api') || req.path === '/health' || req.path === '/login' || req.path === '/register' || req.path === '/logout') {
+    // API রিকুয়েস্ট বাদ দিন
+    if (req.path.startsWith('/api') || 
+        req.path === '/health' || 
+        req.path === '/login' || 
+        req.path === '/register' || 
+        req.path === '/logout') {
         return res.status(404).json({ error: 'API endpoint not found' });
     }
+    
+    // স্ট্যাটিক ফাইল এক্সটেনশন বাদ দিন
+    if (req.path.match(/\.(css|js|png|jpg|jpeg|gif|svg|ico|webp|json|xml|txt)$/)) {
+        return res.status(404).send('File not found');
+    }
+    
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
