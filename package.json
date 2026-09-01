@@ -1,7 +1,7 @@
 {
-  "name": "hosting-backend",
+  "name": "v-host",
   "version": "1.0.0",
-  "description": "Complete hosting backend for HTML projects",
+  "description": "Complete hosting platform - Frontend + Backend",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
